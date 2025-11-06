@@ -1,0 +1,21 @@
+# FastAPI and Server
+fastapi
+uvicorn
+python-multipart
+
+# Database
+sqlalchemy
+python-dotenv
+
+# ML related
+numpy
+pandas
+scikit-learn
+joblib
+
+# API Documentation
+pydantic
+
+# Testing
+pytest
+httpx
