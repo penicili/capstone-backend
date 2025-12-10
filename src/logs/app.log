@@ -62,3 +62,231 @@
 2025-12-10 12:28:28 | INFO     | app:lifespan:13 - loading models...
 2025-12-10 12:28:29 | SUCCESS  | app:lifespan:15 - Models loaded successfully.
 2025-12-10 12:28:34 | INFO     | app:lifespan:18 - Shutting down the application...
+2025-12-10 18:05:36 | INFO     | app:lifespan:12 - Starting up the application...
+2025-12-10 18:05:36 | INFO     | app:lifespan:13 - loading models...
+2025-12-10 18:05:48 | ERROR    | services.model_service:load_models:32 - error loading models
+Traceback (most recent call last):
+
+  File "<string>", line 1, in <module>
+    from multiprocessing.spawn import spawn_main; spawn_main(parent_pid=13592, pipe_handle=540)
+                                      │           └ <function spawn_main at 0x0000025CDEDE09A0>
+                                      └ <function spawn_main at 0x0000025CDEDE09A0>
+  File "C:\Users\LENOVO\AppData\Local\Programs\Python\Python313\Lib\multiprocessing\spawn.py", line 122, in spawn_main
+    exitcode = _main(fd, parent_sentinel)
+               │     │   └ 324
+               │     └ 3
+               └ <function _main at 0x0000025CDEDE0A40>
+  File "C:\Users\LENOVO\AppData\Local\Programs\Python\Python313\Lib\multiprocessing\spawn.py", line 135, in _main
+    return self._bootstrap(parent_sentinel)
+           │    │          └ 324
+           │    └ <function BaseProcess._bootstrap at 0x0000025CDEA982C0>
+           └ <SpawnProcess name='SpawnProcess-1' parent=13592 started>
+  File "C:\Users\LENOVO\AppData\Local\Programs\Python\Python313\Lib\multiprocessing\process.py", line 313, in _bootstrap
+    self.run()
+    │    └ <function BaseProcess.run at 0x0000025CDEA937E0>
+    └ <SpawnProcess name='SpawnProcess-1' parent=13592 started>
+  File "C:\Users\LENOVO\AppData\Local\Programs\Python\Python313\Lib\multiprocessing\process.py", line 108, in run
+    self._target(*self._args, **self._kwargs)
+    │    │        │    │        │    └ {'config': <uvicorn.config.Config object at 0x0000025CE21E8440>, 'target': <bound method Server.run of <uvicorn.server.Server...
+    │    │        │    │        └ <SpawnProcess name='SpawnProcess-1' parent=13592 started>
+    │    │        │    └ ()
+    │    │        └ <SpawnProcess name='SpawnProcess-1' parent=13592 started>
+    │    └ <function subprocess_started at 0x0000025CE21BB880>
+    └ <SpawnProcess name='SpawnProcess-1' parent=13592 started>
+  File "D:\Kuliah\Semt 7\Capstone\capstone-backend\.venv\Lib\site-packages\uvicorn\_subprocess.py", line 80, in subprocess_started
+    target(sockets=sockets)
+    │              └ [<socket.socket fd=620, family=2, type=1, proto=6, laddr=('0.0.0.0', 8000)>]
+    └ <bound method Server.run of <uvicorn.server.Server object at 0x0000025CE21E8590>>
+  File "D:\Kuliah\Semt 7\Capstone\capstone-backend\.venv\Lib\site-packages\uvicorn\server.py", line 67, in run
+    return asyncio_run(self.serve(sockets=sockets), loop_factory=self.config.get_loop_factory())
+           │           │    │             │                      │    │      └ <function Config.get_loop_factory at 0x0000025CE2176E80>
+           │           │    │             │                      │    └ <uvicorn.config.Config object at 0x0000025CE21E8440>
+           │           │    │             │                      └ <uvicorn.server.Server object at 0x0000025CE21E8590>
+           │           │    │             └ [<socket.socket fd=620, family=2, type=1, proto=6, laddr=('0.0.0.0', 8000)>]
+           │           │    └ <function Server.serve at 0x0000025CE21BAA20>
+           │           └ <uvicorn.server.Server object at 0x0000025CE21E8590>
+           └ <function run at 0x0000025CDF50CE00>
+  File "C:\Users\LENOVO\AppData\Local\Programs\Python\Python313\Lib\asyncio\runners.py", line 194, in run
+    return runner.run(main)
+           │      │   └ <coroutine object Server.serve at 0x0000025CDE8FBA00>
+           │      └ <function Runner.run at 0x0000025CE0E6CF40>
+           └ <asyncio.runners.Runner object at 0x0000025CE21E9010>
+  File "C:\Users\LENOVO\AppData\Local\Programs\Python\Python313\Lib\asyncio\runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           │    │     │                  └ <Task pending name='Task-1' coro=<Server.serve() running at D:\Kuliah\Semt 7\Capstone\capstone-backend\.venv\Lib\site-package...
+           │    │     └ <function BaseEventLoop.run_until_complete at 0x0000025CE0E6A980>
+           │    └ <_WindowsSelectorEventLoop running=True closed=False debug=False>
+           └ <asyncio.runners.Runner object at 0x0000025CE21E9010>
+  File "C:\Users\LENOVO\AppData\Local\Programs\Python\Python313\Lib\asyncio\base_events.py", line 708, in run_until_complete
+    self.run_forever()
+    │    └ <function BaseEventLoop.run_forever at 0x0000025CE0E6A8E0>
+    └ <_WindowsSelectorEventLoop running=True closed=False debug=False>
+  File "C:\Users\LENOVO\AppData\Local\Programs\Python\Python313\Lib\asyncio\base_events.py", line 679, in run_forever
+    self._run_once()
+    │    └ <function BaseEventLoop._run_once at 0x0000025CE0E6C720>
+    └ <_WindowsSelectorEventLoop running=True closed=False debug=False>
+  File "C:\Users\LENOVO\AppData\Local\Programs\Python\Python313\Lib\asyncio\base_events.py", line 2027, in _run_once
+    handle._run()
+    │      └ <function Handle._run at 0x0000025CDF621F80>
+    └ <Handle <_asyncio.TaskStepMethWrapper object at 0x0000025CE21E1CC0>()>
+  File "C:\Users\LENOVO\AppData\Local\Programs\Python\Python313\Lib\asyncio\events.py", line 89, in _run
+    self._context.run(self._callback, *self._args)
+    │    │            │    │           │    └ <member '_args' of 'Handle' objects>
+    │    │            │    │           └ <Handle <_asyncio.TaskStepMethWrapper object at 0x0000025CE21E1CC0>()>
+    │    │            │    └ <member '_callback' of 'Handle' objects>
+    │    │            └ <Handle <_asyncio.TaskStepMethWrapper object at 0x0000025CE21E1CC0>()>
+    │    └ <member '_context' of 'Handle' objects>
+    └ <Handle <_asyncio.TaskStepMethWrapper object at 0x0000025CE21E1CC0>()>
+  File "D:\Kuliah\Semt 7\Capstone\capstone-backend\.venv\Lib\site-packages\uvicorn\lifespan\on.py", line 86, in main
+    await app(scope, self.receive, self.send)
+          │   │      │    │        │    └ <function LifespanOn.send at 0x0000025CE2237600>
+          │   │      │    │        └ <uvicorn.lifespan.on.LifespanOn object at 0x0000025CE21EA900>
+          │   │      │    └ <function LifespanOn.receive at 0x0000025CE22376A0>
+          │   │      └ <uvicorn.lifespan.on.LifespanOn object at 0x0000025CE21EA900>
+          │   └ {'type': 'lifespan', 'asgi': {'version': '3.0', 'spec_version': '2.0'}, 'state': {}, 'app': <fastapi.applications.FastAPI obj...
+          └ <uvicorn.middleware.proxy_headers.ProxyHeadersMiddleware object at 0x0000025CE21EA120>
+  File "D:\Kuliah\Semt 7\Capstone\capstone-backend\.venv\Lib\site-packages\uvicorn\middleware\proxy_headers.py", line 29, in __call__
+    return await self.app(scope, receive, send)
+                 │    │   │      │        └ <bound method LifespanOn.send of <uvicorn.lifespan.on.LifespanOn object at 0x0000025CE21EA900>>
+                 │    │   │      └ <bound method LifespanOn.receive of <uvicorn.lifespan.on.LifespanOn object at 0x0000025CE21EA900>>
+                 │    │   └ {'type': 'lifespan', 'asgi': {'version': '3.0', 'spec_version': '2.0'}, 'state': {}, 'app': <fastapi.applications.FastAPI obj...
+                 │    └ <fastapi.applications.FastAPI object at 0x0000025CE21EF9D0>
+                 └ <uvicorn.middleware.proxy_headers.ProxyHeadersMiddleware object at 0x0000025CE21EA120>
+  File "D:\Kuliah\Semt 7\Capstone\capstone-backend\.venv\Lib\site-packages\fastapi\applications.py", line 1139, in __call__
+    await super().__call__(scope, receive, send)
+                           │      │        └ <bound method LifespanOn.send of <uvicorn.lifespan.on.LifespanOn object at 0x0000025CE21EA900>>
+                           │      └ <bound method LifespanOn.receive of <uvicorn.lifespan.on.LifespanOn object at 0x0000025CE21EA900>>
+                           └ {'type': 'lifespan', 'asgi': {'version': '3.0', 'spec_version': '2.0'}, 'state': {}, 'app': <fastapi.applications.FastAPI obj...
+  File "D:\Kuliah\Semt 7\Capstone\capstone-backend\.venv\Lib\site-packages\starlette\applications.py", line 107, in __call__
+    await self.middleware_stack(scope, receive, send)
+          │    │                │      │        └ <bound method LifespanOn.send of <uvicorn.lifespan.on.LifespanOn object at 0x0000025CE21EA900>>
+          │    │                │      └ <bound method LifespanOn.receive of <uvicorn.lifespan.on.LifespanOn object at 0x0000025CE21EA900>>
+          │    │                └ {'type': 'lifespan', 'asgi': {'version': '3.0', 'spec_version': '2.0'}, 'state': {}, 'app': <fastapi.applications.FastAPI obj...
+          │    └ <starlette.middleware.errors.ServerErrorMiddleware object at 0x0000025CE21EB0E0>
+          └ <fastapi.applications.FastAPI object at 0x0000025CE21EF9D0>
+  File "D:\Kuliah\Semt 7\Capstone\capstone-backend\.venv\Lib\site-packages\starlette\middleware\errors.py", line 151, in __call__
+    await self.app(scope, receive, send)
+          │    │   │      │        └ <bound method LifespanOn.send of <uvicorn.lifespan.on.LifespanOn object at 0x0000025CE21EA900>>
+          │    │   │      └ <bound method LifespanOn.receive of <uvicorn.lifespan.on.LifespanOn object at 0x0000025CE21EA900>>
+          │    │   └ {'type': 'lifespan', 'asgi': {'version': '3.0', 'spec_version': '2.0'}, 'state': {}, 'app': <fastapi.applications.FastAPI obj...
+          │    └ <starlette.middleware.exceptions.ExceptionMiddleware object at 0x0000025CE21EAF90>
+          └ <starlette.middleware.errors.ServerErrorMiddleware object at 0x0000025CE21EB0E0>
+  File "D:\Kuliah\Semt 7\Capstone\capstone-backend\.venv\Lib\site-packages\starlette\middleware\exceptions.py", line 49, in __call__
+    await self.app(scope, receive, send)
+          │    │   │      │        └ <bound method LifespanOn.send of <uvicorn.lifespan.on.LifespanOn object at 0x0000025CE21EA900>>
+          │    │   │      └ <bound method LifespanOn.receive of <uvicorn.lifespan.on.LifespanOn object at 0x0000025CE21EA900>>
+          │    │   └ {'type': 'lifespan', 'asgi': {'version': '3.0', 'spec_version': '2.0'}, 'state': {}, 'app': <fastapi.applications.FastAPI obj...
+          │    └ <fastapi.middleware.asyncexitstack.AsyncExitStackMiddleware object at 0x0000025CE21EAE40>
+          └ <starlette.middleware.exceptions.ExceptionMiddleware object at 0x0000025CE21EAF90>
+  File "D:\Kuliah\Semt 7\Capstone\capstone-backend\.venv\Lib\site-packages\fastapi\middleware\asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+          │    │   │      │        └ <bound method LifespanOn.send of <uvicorn.lifespan.on.LifespanOn object at 0x0000025CE21EA900>>
+          │    │   │      └ <bound method LifespanOn.receive of <uvicorn.lifespan.on.LifespanOn object at 0x0000025CE21EA900>>
+          │    │   └ {'type': 'lifespan', 'asgi': {'version': '3.0', 'spec_version': '2.0'}, 'state': {}, 'app': <fastapi.applications.FastAPI obj...
+          │    └ <fastapi.routing.APIRouter object at 0x0000025CE213B360>
+          └ <fastapi.middleware.asyncexitstack.AsyncExitStackMiddleware object at 0x0000025CE21EAE40>
+  File "D:\Kuliah\Semt 7\Capstone\capstone-backend\.venv\Lib\site-packages\starlette\routing.py", line 716, in __call__
+    await self.middleware_stack(scope, receive, send)
+          │    │                │      │        └ <bound method LifespanOn.send of <uvicorn.lifespan.on.LifespanOn object at 0x0000025CE21EA900>>
+          │    │                │      └ <bound method LifespanOn.receive of <uvicorn.lifespan.on.LifespanOn object at 0x0000025CE21EA900>>
+          │    │                └ {'type': 'lifespan', 'asgi': {'version': '3.0', 'spec_version': '2.0'}, 'state': {}, 'app': <fastapi.applications.FastAPI obj...
+          │    └ <bound method Router.app of <fastapi.routing.APIRouter object at 0x0000025CE213B360>>
+          └ <fastapi.routing.APIRouter object at 0x0000025CE213B360>
+  File "D:\Kuliah\Semt 7\Capstone\capstone-backend\.venv\Lib\site-packages\starlette\routing.py", line 725, in app
+    await self.lifespan(scope, receive, send)
+          │    │        │      │        └ <bound method LifespanOn.send of <uvicorn.lifespan.on.LifespanOn object at 0x0000025CE21EA900>>
+          │    │        │      └ <bound method LifespanOn.receive of <uvicorn.lifespan.on.LifespanOn object at 0x0000025CE21EA900>>
+          │    │        └ {'type': 'lifespan', 'asgi': {'version': '3.0', 'spec_version': '2.0'}, 'state': {}, 'app': <fastapi.applications.FastAPI obj...
+          │    └ <function Router.lifespan at 0x0000025CE1EF9B20>
+          └ <fastapi.routing.APIRouter object at 0x0000025CE213B360>
+  File "D:\Kuliah\Semt 7\Capstone\capstone-backend\.venv\Lib\site-packages\starlette\routing.py", line 694, in lifespan
+    async with self.lifespan_context(app) as maybe_state:
+               │    │                └ <fastapi.applications.FastAPI object at 0x0000025CE21EF9D0>
+               │    └ <function lifespan at 0x0000025CE22377E0>
+               └ <fastapi.routing.APIRouter object at 0x0000025CE213B360>
+  File "C:\Users\LENOVO\AppData\Local\Programs\Python\Python313\Lib\contextlib.py", line 214, in __aenter__
+    return await anext(self.gen)
+                       │    └ <async_generator object lifespan at 0x0000025CE213D600>
+                       └ <contextlib._AsyncGeneratorContextManager object at 0x0000025CE21EB230>
+
+  File "D:\Kuliah\Semt 7\Capstone\capstone-backend\src\app.py", line 14, in lifespan
+    model_service.load_models()
+    │             └ <function ModelService.load_models at 0x0000025CE1FBC360>
+    └ <services.model_service.ModelService object at 0x0000025CE21EEFD0>
+
+> File "D:\Kuliah\Semt 7\Capstone\capstone-backend\src\services\model_service.py", line 28, in load_models
+    with open(settings.LABEL_ENCODER_FINALGRADE_PATH, 'rb') as f:
+              │        │                                       └ <_io.BufferedReader name='D:\\Kuliah\\Semt 7\\Capstone\\capstone-backend\\src\\assets\\models\\label_encoder_dropoutv2.pkl'>
+              │        └ WindowsPath('D:/Kuliah/Semt 7/Capstone/capstone-backend/src/assets/models/label_encoder_finalgradev2.pkl')
+              └ <module 'config.settings' from 'D:\\Kuliah\\Semt 7\\Capstone\\capstone-backend\\src\\config\\settings.py'>
+
+FileNotFoundError: [Errno 2] No such file or directory: 'D:\\Kuliah\\Semt 7\\Capstone\\capstone-backend\\src\\assets\\models\\label_encoder_finalgradev2.pkl'
+2025-12-10 18:07:12 | INFO     | app:lifespan:12 - Starting up the application...
+2025-12-10 18:07:12 | INFO     | app:lifespan:13 - loading models...
+2025-12-10 18:07:13 | SUCCESS  | app:lifespan:15 - Models loaded successfully.
+2025-12-10 18:08:10 | INFO     | app:lifespan:18 - Shutting down the application...
+2025-12-10 18:08:11 | INFO     | app:lifespan:12 - Starting up the application...
+2025-12-10 18:08:11 | INFO     | app:lifespan:13 - loading models...
+2025-12-10 18:08:13 | SUCCESS  | app:lifespan:15 - Models loaded successfully.
+2025-12-10 18:08:21 | INFO     | app:lifespan:18 - Shutting down the application...
+2025-12-10 18:08:22 | INFO     | app:lifespan:12 - Starting up the application...
+2025-12-10 18:08:22 | INFO     | app:lifespan:13 - loading models...
+2025-12-10 18:08:24 | SUCCESS  | app:lifespan:15 - Models loaded successfully.
+2025-12-10 18:08:25 | INFO     | app:lifespan:12 - Starting up the application...
+2025-12-10 18:08:25 | INFO     | app:lifespan:13 - loading models...
+2025-12-10 18:08:26 | SUCCESS  | app:lifespan:15 - Models loaded successfully.
+2025-12-10 18:08:39 | INFO     | app:lifespan:18 - Shutting down the application...
+2025-12-10 18:08:40 | INFO     | app:lifespan:12 - Starting up the application...
+2025-12-10 18:08:40 | INFO     | app:lifespan:13 - loading models...
+2025-12-10 18:08:41 | SUCCESS  | app:lifespan:15 - Models loaded successfully.
+2025-12-10 18:09:16 | INFO     | app:lifespan:18 - Shutting down the application...
+2025-12-10 18:09:17 | INFO     | app:lifespan:12 - Starting up the application...
+2025-12-10 18:09:17 | INFO     | app:lifespan:13 - loading models...
+2025-12-10 18:09:19 | SUCCESS  | app:lifespan:15 - Models loaded successfully.
+2025-12-10 18:09:38 | INFO     | app:lifespan:18 - Shutting down the application...
+2025-12-10 18:09:39 | INFO     | app:lifespan:12 - Starting up the application...
+2025-12-10 18:09:39 | INFO     | app:lifespan:13 - loading models...
+2025-12-10 18:09:41 | SUCCESS  | app:lifespan:15 - Models loaded successfully.
+2025-12-10 18:10:07 | INFO     | app:lifespan:18 - Shutting down the application...
+2025-12-10 18:10:08 | INFO     | app:lifespan:12 - Starting up the application...
+2025-12-10 18:10:08 | INFO     | app:lifespan:13 - loading models...
+2025-12-10 18:10:09 | SUCCESS  | app:lifespan:15 - Models loaded successfully.
+2025-12-10 18:10:10 | INFO     | app:lifespan:12 - Starting up the application...
+2025-12-10 18:10:10 | INFO     | app:lifespan:13 - loading models...
+2025-12-10 18:10:13 | SUCCESS  | app:lifespan:15 - Models loaded successfully.
+2025-12-10 18:10:27 | INFO     | app:lifespan:18 - Shutting down the application...
+2025-12-10 18:10:28 | INFO     | app:lifespan:12 - Starting up the application...
+2025-12-10 18:10:28 | INFO     | app:lifespan:13 - loading models...
+2025-12-10 18:10:29 | SUCCESS  | app:lifespan:15 - Models loaded successfully.
+2025-12-10 18:11:06 | INFO     | app:lifespan:18 - Shutting down the application...
+2025-12-10 18:11:07 | INFO     | app:lifespan:12 - Starting up the application...
+2025-12-10 18:11:07 | INFO     | app:lifespan:13 - loading models...
+2025-12-10 18:11:09 | SUCCESS  | app:lifespan:15 - Models loaded successfully.
+2025-12-10 18:11:10 | INFO     | app:lifespan:12 - Starting up the application...
+2025-12-10 18:11:10 | INFO     | app:lifespan:13 - loading models...
+2025-12-10 18:11:12 | SUCCESS  | app:lifespan:15 - Models loaded successfully.
+2025-12-10 18:11:18 | INFO     | app:lifespan:18 - Shutting down the application...
+2025-12-10 18:11:19 | INFO     | app:lifespan:12 - Starting up the application...
+2025-12-10 18:11:19 | INFO     | app:lifespan:13 - loading models...
+2025-12-10 18:11:21 | SUCCESS  | app:lifespan:15 - Models loaded successfully.
+2025-12-10 18:11:22 | INFO     | app:lifespan:18 - Shutting down the application...
+2025-12-10 18:11:23 | INFO     | app:lifespan:12 - Starting up the application...
+2025-12-10 18:11:23 | INFO     | app:lifespan:13 - loading models...
+2025-12-10 18:11:25 | SUCCESS  | app:lifespan:15 - Models loaded successfully.
+2025-12-10 18:12:01 | INFO     | app:lifespan:18 - Shutting down the application...
+2025-12-10 18:12:02 | INFO     | app:lifespan:12 - Starting up the application...
+2025-12-10 18:12:02 | INFO     | app:lifespan:13 - loading models...
+2025-12-10 18:12:04 | SUCCESS  | app:lifespan:15 - Models loaded successfully.
+2025-12-10 18:12:05 | INFO     | app:lifespan:18 - Shutting down the application...
+2025-12-10 18:12:06 | INFO     | app:lifespan:12 - Starting up the application...
+2025-12-10 18:12:06 | INFO     | app:lifespan:13 - loading models...
+2025-12-10 18:12:08 | SUCCESS  | app:lifespan:15 - Models loaded successfully.
+2025-12-10 18:12:20 | INFO     | app:lifespan:18 - Shutting down the application...
+2025-12-10 18:24:08 | INFO     | app:lifespan:12 - Starting up the application...
+2025-12-10 18:24:08 | INFO     | app:lifespan:13 - loading models...
+2025-12-10 18:24:10 | SUCCESS  | app:lifespan:15 - Models loaded successfully.
+2025-12-10 18:24:14 | ERROR    | services.encoder_service:encode_finalgrade:19 - Final grade label encoder is not loaded
+NoneType: None
+2025-12-10 18:24:47 | INFO     | app:lifespan:18 - Shutting down the application...
+2025-12-10 18:27:13 | ERROR    | services.encoder_service:encode_finalgrade:19 - Final grade label encoder is not loaded
+NoneType: None

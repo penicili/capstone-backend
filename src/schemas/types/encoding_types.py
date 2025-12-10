@@ -43,8 +43,8 @@ AgeBand = Literal["0-35", "35-55", "55<="]
 Disability = Literal["N", "Y"]
 FinalResult = Literal["Distinction", "Fail", "Pass", "Withdrawn"]
 
-# Raw input types (belum di-encode)
-class DropoutFeatures:
+# Raw input types (belum di-encode) - TypedDict
+class DropoutFeatures(TypedDict):
     """Features untuk dropout prediction (sebelum encoding)"""
     code_module: CodeModule
     code_presentation: CodePresentation
@@ -57,20 +57,11 @@ class DropoutFeatures:
     studied_credits: int
     disability: Disability
 
-class FinalResultFeatures:
+class FinalResultFeatures(TypedDict):
     """Features untuk final result prediction (sebelum encoding)"""
     gender: Gender
-    highest_education: HighestEducation
-    imd_band: IMDBand
     age_band: AgeBand
-    num_of_prev_attempts: int
     studied_credits: int
-    disability: Disability
-    avg_assessment_score: float
+    num_of_prev_attempts: int
     total_clicks: int
-
-class DropoutEncodingFeature(TypedDict):
-    pass
-
-class FinalResultEncodingFeature(TypedDict):
-    pass
+    avg_assessment_score: float

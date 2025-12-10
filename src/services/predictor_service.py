@@ -2,13 +2,14 @@
 Docstring for services.predictor_service
 predictor service untuk handling prediksi ML models
 """
-from model_service import model_service
+from services import ModelService
 from schemas.types import DropoutFeaturesEncoded, FinalResultFeaturesEncoded
 from core.logging import logger
 
 class PredictorService:
     def __init__(self):
-        models = model_service.get_models()
+        self.ModelService = ModelService()
+        models = self.ModelService.get_models()
         self.final_grade_model = models.get("final_grade_model")
         self.dropout_model = models.get("dropout_model")
         

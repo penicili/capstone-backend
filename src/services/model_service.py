@@ -13,6 +13,8 @@ class ModelService:
         """Initialize model service"""
         self.dropout_model = None
         self.final_grade_model = None
+        self.label_encoder_dropout = None
+        self.label_encoder_finalgrade = None
         
     def load_models(self):
         """Load semua ML models"""
