@@ -11,7 +11,7 @@ python-dotenv
 # ML related
 numpy
 pandas==2.2.3
-scikit-learn==1.6.1
+scikit-learn==1.5.2
 joblib
 
 # API Documentation
