@@ -1,3 +1,4 @@
+# Pakai python 
 # FastAPI and Server
 fastapi
 uvicorn
@@ -9,8 +10,8 @@ python-dotenv
 
 # ML related
 numpy
-pandas
-scikit-learn
+pandas==2.2.3
+scikit-learn==1.6.1
 joblib
 
 # API Documentation
@@ -19,3 +20,7 @@ pydantic
 # Testing
 pytest
 httpx
+requests
+
+# logging
+loguru
