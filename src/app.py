@@ -1,16 +1,21 @@
 from fastapi import FastAPI
 from contextlib import asynccontextmanager
 from services import ModelService, PredictorService
+from core.logging import logger
 
+model_service = ModelService()
+predictor_service = PredictorService()
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-
     # Startup
-    # load models
-    
+    logger.info("Starting up the application...")
+    logger.info("loading models...")
+    model_service.load_models()
+    logger.success("Models loaded successfully.")    
     yield
     # Shutdown
+    logger.info("Shutting down the application...")
 
 app = FastAPI(
     title="Capstone KPI & ML API",
@@ -22,12 +27,6 @@ app = FastAPI(
 @app.get("/")
 async def root():
     return {"message": "App is running"}
-
-@app.get("/health")
-async def health():
-    return {"status": "healthy"}
-
-
 
 if __name__ == "__main__":
     import uvicorn

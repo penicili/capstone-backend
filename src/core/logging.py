@@ -1,6 +1,6 @@
 import sys
 from loguru import logger
-from config.settings import settings
+from config import settings
 
 # Configure logger
 logger.remove()
