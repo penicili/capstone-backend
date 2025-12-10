@@ -31,3 +31,15 @@ DEBUG = os.getenv("DEBUG", "True").lower() == "true"
 # Logging
 LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")
 LOG_FILE = BASE_DIR / "logs" / os.getenv("LOG_FILE", "app.log")
+
+# Database Configuration
+DB_HOST = os.getenv("DB_HOST", "localhost")
+DB_PORT = int(os.getenv("DB_PORT", "3006"))
+DB_USER = os.getenv("DB_USER", "root")
+DB_PASSWORD = os.getenv("DB_PASSWORD", "")
+DB_NAME = os.getenv("DB_NAME", "capstone_kpi")
+
+# Database Pool Configuration
+DB_POOL_MIN_CACHED = int(os.getenv("DB_POOL_MIN_CACHED", "2"))
+DB_POOL_MAX_CACHED = int(os.getenv("DB_POOL_MAX_CACHED", "5"))
+DB_POOL_MAX_CONNECTIONS = int(os.getenv("DB_POOL_MAX_CONNECTIONS", "10"))

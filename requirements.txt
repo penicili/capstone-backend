@@ -24,3 +24,6 @@ requests
 
 # logging
 loguru
+
+# Database driver
+pymysql
