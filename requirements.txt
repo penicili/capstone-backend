@@ -21,6 +21,7 @@ pydantic
 pytest
 httpx
 requests
+pytest-asyncio
 
 # logging
 loguru

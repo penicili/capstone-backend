@@ -3,13 +3,25 @@ from contextlib import asynccontextmanager
 from services.model_service import model_service
 from services.encoder_service import encoder_service
 from services.predictor_service import predictor_service
+from services.kpi_service import kpi_service
 from api import router
+from api import kpi_router
+from core.database import db
 from core.logging import logger
+from datetime import datetime
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Startup
     logger.info("Starting up the application...")
+    
+    # Test database connection
+    logger.info("Testing database connection...")
+    if db.test_connection():
+        logger.success("Database connection successful")
+    else:
+        logger.error("Database connection failed")
+    
     logger.info("Loading models...")
     model_service.load_models()
     logger.success("Models loaded successfully.")
@@ -20,6 +32,7 @@ async def lifespan(app: FastAPI):
     app.state.model_service = model_service
     app.state.encoder_service = encoder_service
     app.state.predictor_service = predictor_service
+    app.state.kpi_service = kpi_service
     logger.success("Services initialized successfully.")
     
     yield
@@ -34,8 +47,9 @@ app = FastAPI(
     lifespan=lifespan
 )
 
-# Include router
-app.include_router(router.router)
+# Include routers
+app.include_router(router)
+app.include_router(kpi_router)
 
 @app.get("/")
 async def root():
@@ -45,7 +59,9 @@ async def root():
 async def health():
     return {
         "status": "ok",
-        "models_ready": model_service.is_ready()
+        "models_ready": model_service.is_ready(),
+        "database_connected": db.test_connection(),
+        "timestamp": datetime.now().isoformat()
     }
 
 if __name__ == "__main__":

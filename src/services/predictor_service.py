@@ -18,7 +18,18 @@ class PredictorService:
         if not self.final_grade_model:
             logger.exception("Final grade model is not loaded")
             raise Exception("Final grade model is not loaded")
-        prediction = self.final_grade_model.predict([features])
+        
+        # Convert features dict to list with correct order
+        feature_list = [
+            features['gender'],
+            features['age_band'],
+            features['studied_credits'],
+            features['num_of_prev_attempts'],
+            features['total_clicks'],
+            features['avg_assessment_score']
+        ]
+        
+        prediction = self.final_grade_model.predict([feature_list])
         return prediction[0]
     
     def predict_dropout(self, features: DropoutFeaturesEncoded):
@@ -31,4 +42,4 @@ class PredictorService:
     
 
 # Global instance
-predictor_service = PredictorService()   
+predictor_service = PredictorService()
