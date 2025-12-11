@@ -103,15 +103,16 @@ class KPIService:
         """
         query = """
             SELECT 
-                sa.code_module,
-                sa.code_presentation,
+                a.code_module,
+                a.code_presentation,
                 COUNT(DISTINCT sa.id_student) as total_students,
                 AVG(sa.score) as avg_score,
                 MIN(sa.score) as min_score,
                 MAX(sa.score) as max_score
             FROM studentassessment sa
-            GROUP BY sa.code_module, sa.code_presentation
-            ORDER BY sa.code_module, sa.code_presentation
+            JOIN assessments a ON sa.id_assessment = a.id_assessment
+            GROUP BY a.code_module, a.code_presentation
+            ORDER BY a.code_module, a.code_presentation
         """
         try:
             results = db.execute_query(query)

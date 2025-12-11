@@ -126,16 +126,12 @@ class HTTPRequestTest:
         print("="*70)
         
         payload = {
-            "code_module": "AAA",
-            "code_presentation": "2013J",
             "gender": "F",
-            "region": "East Anglian Region",
-            "highest_education": "HE Qualification",
-            "imd_band": "10-20%",
             "age_band": "0-35",
-            "num_of_prev_attempts": 0,
             "studied_credits": 60,
-            "disability": "N"
+            "num_of_prev_attempts": 0,
+            "total_clicks": 1500,
+            "avg_assessment_score": 75.5
         }
         
         print(f"\nRequest payload:")

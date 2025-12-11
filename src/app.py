@@ -1,8 +1,8 @@
 from fastapi import FastAPI
 from contextlib import asynccontextmanager
 from services.model_service import model_service
-from services.encoder_service import encoder_service
-from services.predictor_service import predictor_service
+from services.encoder_service import EncoderService
+from services.predictor_service import PredictorService
 from services.kpi_service import kpi_service
 from api import router
 from api import kpi_router
@@ -28,6 +28,10 @@ async def lifespan(app: FastAPI):
     
     # Initialize services after models loaded
     logger.info("Initializing services...")
+    encoder_service = EncoderService()
+    predictor_service = PredictorService()
+    logger.success("Encoder and Predictor services initialized.")
+    
     import api.router as router_module
     app.state.model_service = model_service
     app.state.encoder_service = encoder_service

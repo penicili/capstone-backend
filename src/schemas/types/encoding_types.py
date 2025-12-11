@@ -27,16 +27,16 @@ HighestEducation = Literal[
     "Post Graduate Qualification"
 ]
 IMDBand = Literal[
-    "0-10%",
+    "0-10",
     "10-20",
-    "20-30%",
-    "30-40%",
-    "40-50%",
-    "50-60%",
-    "60-70%",
-    "70-80%",
-    "80-90%",
-    "90-100%",
+    "20-30",
+    "30-40",
+    "40-50",
+    "50-60",
+    "60-70",
+    "70-80",
+    "80-90",
+    "90-100",
     "Unknown"
 ]
 AgeBand = Literal["0-35", "35-55", "55<="]
@@ -45,17 +45,13 @@ FinalResult = Literal["Distinction", "Fail", "Pass", "Withdrawn"]
 
 # Raw input types (belum di-encode) - TypedDict
 class DropoutFeatures(TypedDict):
-    """Features untuk dropout prediction (sebelum encoding)"""
-    code_module: CodeModule
-    code_presentation: CodePresentation
+    """Features untuk dropout prediction (sebelum encoding) - same as FinalResultFeatures"""
     gender: Gender
-    region: Region
-    highest_education: HighestEducation
-    imd_band: IMDBand
     age_band: AgeBand
-    num_of_prev_attempts: int
     studied_credits: int
-    disability: Disability
+    num_of_prev_attempts: int
+    total_clicks: int
+    avg_assessment_score: float
 
 class FinalResultFeatures(TypedDict):
     """Features untuk final result prediction (sebelum encoding)"""
