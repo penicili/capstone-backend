@@ -16,7 +16,7 @@ async def lifespan(app: FastAPI):
     logger.info("Starting up the application...")
     
     # Test database connection
-    logger.info("Testing database connection...")
+    logger.info("Testing database connection... using port "+str(db.config['port']) + " host "+ str(db.config['host']))
     if db.test_connection():
         logger.success("Database connection successful")
     else:

@@ -36,7 +36,7 @@ class ModelService:
     
     def is_ready(self):
         """Check apakah models sudah di-load"""
-        return self.dropout_model is not None and self.final_grade_model is not None
+        return self.dropout_model is not None and self.final_grade_model is not None and self.label_encoder_dropout is not None and self.label_encoder_finalgrade is not None 
     
     def get_models(self):
         """Get loaded models"""
