@@ -1,46 +1,23 @@
+``` json
 [
   {
     "No": 1,
-    "Nama KPI": "Login Frequency",
-    "Definisi": "Jumlah login dalam periode tertentu",
-    "Rumus / Metode": "Total login per minggu/bulan",
-    "Sumber Data": "Log aktivitas LMS",
-    "Manfaat": "Mengukur konsistensi akses"
-  },
-  {
-    "No": 2,
-    "Nama KPI": "Active Learning Time",
-    "Definisi": "Total durasi mahasiswa aktif di LMS",
-    "Rumus / Metode": "Σ durasi sesi aktif",
-    "Sumber Data": "Log aktivitas (timestamp)",
-    "Manfaat": "Menilai intensitas belajar"
-  },
-  {
-    "No": 3,
-    "Nama KPI": "Material Access Rate",
-    "Definisi": "Persentase materi yang diakses",
-    "Rumus / Metode": "(Materi dibuka / Materi tersedia) × 100%",
-    "Sumber Data": "Log akses materi",
-    "Manfaat": "Memantau konsumsi konten"
-  },
-  {
-    "No": 4,
     "Nama KPI": "Forum Participation Score",
     "Definisi": "Skor aktivitas diskusi",
-    "Rumus / Metode": "Posting + Komentar + Like",
-    "Sumber Data": "Log forum",
+    "Rumus / Metode": "Sum click dari activity type (forum)",
+    "Sumber Data": "Sum__click INT",
     "Manfaat": "Menilai interaksi akademik"
   },
   {
-    "No": 5,
+    "No": 2,
     "Nama KPI": "Task Completion Ratio",
-    "Definisi": "Persentase tugas yang diselesaikan",
+    "Definisi": "Persentase assessment yang diselesaikan (>50)",
     "Rumus / Metode": "(Tugas selesai / Total tugas) × 100%",
     "Sumber Data": "Pengumpulan tugas",
     "Manfaat": "Evaluasi komitmen belajar"
   },
   {
-    "No": 6,
+    "No": 3,
     "Nama KPI": "Assignment Timeliness",
     "Definisi": "Persentase tugas tepat waktu",
     "Rumus / Metode": "(Tugas on-time / Tugas dikumpulkan) × 100%",
@@ -48,15 +25,7 @@
     "Manfaat": "Mengukur kedisiplinan"
   },
   {
-    "No": 7,
-    "Nama KPI": "Quiz/Exam Participation Rate",
-    "Definisi": "Partisipasi kuis/ujian",
-    "Rumus / Metode": "(Ikut kuis / Total kuis) × 100%",
-    "Sumber Data": "Log kuis",
-    "Manfaat": "Menilai keaktifan evaluasi"
-  },
-  {
-    "No": 8,
+    "No": 4,
     "Nama KPI": "Grade Performance Index",
     "Definisi": "Rata-rata nilai tugas & kuis",
     "Rumus / Metode": "Σ nilai / jumlah penilaian",
@@ -64,23 +33,15 @@
     "Manfaat": "Melihat performa akademik"
   },
   {
-    "No": 9,
-    "Nama KPI": "Course Engagement Score",
-    "Definisi": "Skor gabungan aktivitas mahasiswa",
-    "Rumus / Metode": "Bobot (login, materi, forum, tugas)",
-    "Sumber Data": "Semua log aktivitas",
-    "Manfaat": "Memberikan skor keterlibatan"
-  },
-  {
-    "No": 10,
+    "No": 5,
     "Nama KPI": "Low Activity Alert Index",
-    "Definisi": "Indeks risiko aktvitas rendah",
+    "Definisi": "Indeks risiko aktivitas rendah",
     "Rumus / Metode": "Threshold berbasis rata-rata kelas",
     "Sumber Data": "Semua log aktivitas",
     "Manfaat": "Deteksi dini mahasiswa pasif"
   },
   {
-    "No": 11,
+    "No": 6,
     "Nama KPI": "Predicted Dropout Risk",
     "Definisi": "Prediksi risiko dropout",
     "Rumus / Metode": "Model ML (LR/RF/DT)",
@@ -88,12 +49,21 @@
     "Manfaat": "Intervensi akademik lebih cepat"
   },
   {
-    "No": 12,
+    "No": 7,
     "Nama KPI": "Attendance Consistency Score",
     "Definisi": "Konsistensi login mingguan",
     "Rumus / Metode": "Variasi login per minggu",
     "Sumber Data": "Log login",
     "Manfaat": "Indikator stabilitas belajar"
+  },
+  {
+    "No": 8,
+    "Nama KPI": "Final Result Prediction",
+    "Definisi": "Mengetahui lebih awal apakah mahasiswa akan lulus",
+    "Rumus / Metode": "Random Forest",
+    "Sumber Data": "",
+    "Manfaat": ""
   }
 ]
 
+```

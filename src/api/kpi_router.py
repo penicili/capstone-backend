@@ -48,14 +48,14 @@ async def get_all_kpi_metrics(request: Request, refresh: bool = False):
     Query Parameters:
         - refresh: Force refresh cache (default: False)
     
-    Returns list of 12 KPIs grouped by category:
-    - engagement: Login Frequency, Active Learning Time, Material Access Rate, Course Engagement Score, Attendance Consistency
-    - academic: Task Completion Ratio, Assignment Timeliness, Quiz Participation Rate, Grade Performance Index
+    Returns list of 8 KPIs grouped by category:
+    - engagement: Forum Participation Score, Attendance Consistency Score
+    - academic: Task Completion Ratio, Assignment Timeliness, Grade Performance Index, Final Result Prediction
     - risk: Low Activity Alert Index, Predicted Dropout Risk
     
     Frontend can iterate through the list with foreach and group by category
     
-    Cache is automatically refreshed every 5 minutes, or can be manually refreshed with ?refresh=true
+    Cache is automatically refreshed every 5 minutes (configurable), or can be manually refreshed with ?refresh=true
     """
     try:
         kpi_service = request.app.state.kpi_service
