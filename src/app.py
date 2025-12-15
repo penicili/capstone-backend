@@ -4,12 +4,13 @@ from contextlib import asynccontextmanager
 from services.model_service import model_service
 from services.encoder_service import EncoderService
 from services.predictor_service import PredictorService
-from services.kpi_service import kpi_service
+from services.kpi_service import KPIService
 from api import router
 from api import kpi_router
 from core.database import db
 from core.logging import logger
 from datetime import datetime
+from config import settings
 
 
 @asynccontextmanager
@@ -44,7 +45,8 @@ async def lifespan(app: FastAPI):
     logger.info("Initializing services...")
     encoder_service = EncoderService()
     predictor_service = PredictorService()
-    logger.success("Encoder and Predictor services initialized.")
+    kpi_service = KPIService(cache_ttl_seconds=settings.KPI_CACHE_TTL_SECONDS)
+    logger.success(f"Services initialized. KPI cache TTL: {settings.KPI_CACHE_TTL_SECONDS}s")
 
     import api.router as router_module
 
@@ -52,7 +54,7 @@ async def lifespan(app: FastAPI):
     app.state.encoder_service = encoder_service
     app.state.predictor_service = predictor_service
     app.state.kpi_service = kpi_service
-    logger.success("Services initialized successfully.")
+    logger.success("All services registered to app state.")
 
     yield
 

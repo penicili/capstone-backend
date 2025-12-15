@@ -43,3 +43,6 @@ DB_NAME = os.getenv("DB_NAME", "capstone_kpi")
 DB_POOL_MIN_CACHED = int(os.getenv("DB_POOL_MIN_CACHED", "2"))
 DB_POOL_MAX_CACHED = int(os.getenv("DB_POOL_MAX_CACHED", "5"))
 DB_POOL_MAX_CONNECTIONS = int(os.getenv("DB_POOL_MAX_CONNECTIONS", "10"))
+
+# KPI Cache Configuration
+KPI_CACHE_TTL_SECONDS = int(os.getenv("KPI_CACHE_TTL_SECONDS", "300"))  # Default: 5 menit

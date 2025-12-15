@@ -3,12 +3,40 @@ KPI Service untuk dashboard analytics
 OLAP queries untuk KPI metrics
 """
 from typing import List, Dict, Any, Optional
+from datetime import datetime, timedelta
+from threading import Lock
 from core.database import db
 from core.logging import logger
 
 
 class KPIService:
-    """Service untuk KPI dashboard queries"""
+    """Service untuk KPI dashboard queries dengan in-memory caching"""
+    
+    def __init__(self, cache_ttl_seconds: int = 300):
+        """
+        Initialize KPI Service dengan cache configuration
+        
+        Args:
+            cache_ttl_seconds: Cache Time To Live dalam detik (default: 300 = 5 menit)
+        """
+        self._cache: Optional[List[Dict[str, Any]]] = None
+        self._cache_timestamp: Optional[datetime] = None
+        self._cache_ttl = timedelta(seconds=cache_ttl_seconds)
+        self._lock = Lock()  # Thread-safe untuk concurrent requests
+        logger.info(f"KPIService initialized with cache TTL: {cache_ttl_seconds} seconds")
+    
+    def _is_cache_valid(self) -> bool:
+        """Check apakah cache masih valid"""
+        if self._cache is None or self._cache_timestamp is None:
+            return False
+        return datetime.now() - self._cache_timestamp < self._cache_ttl
+    
+    def clear_cache(self) -> None:
+        """Manually clear cache (untuk force refresh)"""
+        with self._lock:
+            self._cache = None
+            self._cache_timestamp = None
+            logger.info("KPI cache cleared manually")
     
     def _calculate_login_frequency(self) -> Dict[str, Any]:
         """KPI 1: Login Frequency - Jumlah login dalam periode tertentu"""
@@ -340,33 +368,61 @@ class KPIService:
             logger.exception(f"Error calculating attendance consistency score: {e}")
             return {"kpi_id": 12, "name": "Attendance Consistency Score", "value": 0, "unit": "days", "category": "engagement"}
     
-    def get_all_kpis(self) -> List[Dict[str, Any]]:
+    def get_all_kpis(self, force_refresh: bool = False) -> List[Dict[str, Any]]:
         """
-        Get semua KPI metrics dalam satu endpoint
+        Get semua KPI metrics dengan caching
+        
+        Args:
+            force_refresh: Force refresh cache (ignore cache dan query database)
         
         Returns:
             List of all 12 KPI metrics
         """
-        try:
-            kpis = [
-                self._calculate_login_frequency(),
-                self._calculate_active_learning_time(),
-                self._calculate_material_access_rate(),
-                self._calculate_task_completion_ratio(),
-                self._calculate_assignment_timeliness(),
-                self._calculate_quiz_participation_rate(),
-                self._calculate_grade_performance_index(),
-                self._calculate_course_engagement_score(),
-                self._calculate_low_activity_alert_index(),
-                self._calculate_predicted_dropout_risk(),
-                self._calculate_attendance_consistency_score()
-            ]
-            logger.info(f"Retrieved {len(kpis)} KPIs")
-            return kpis
-        except Exception as e:
-            logger.exception(f"Error getting all KPIs: {e}")
-            return []
-
-
-# Global instance
-kpi_service = KPIService()
+        # Check cache dengan thread-safe lock
+        with self._lock:
+            if not force_refresh and self._is_cache_valid() and self._cache is not None:
+                logger.info("Returning KPIs from cache")
+                return self._cache
+            
+            # Cache expired atau force refresh - query database
+            logger.info("Cache expired or force refresh - querying database for KPIs")
+            try:
+                kpis = [
+                    self._calculate_login_frequency(),
+                    self._calculate_active_learning_time(),
+                    self._calculate_material_access_rate(),
+                    self._calculate_task_completion_ratio(),
+                    self._calculate_assignment_timeliness(),
+                    self._calculate_quiz_participation_rate(),
+                    self._calculate_grade_performance_index(),
+                    self._calculate_course_engagement_score(),
+                    self._calculate_low_activity_alert_index(),
+                    self._calculate_predicted_dropout_risk(),
+                    self._calculate_attendance_consistency_score()
+                ]
+                
+                # Update cache
+                self._cache = kpis
+                self._cache_timestamp = datetime.now()
+                logger.info(f"Retrieved and cached {len(kpis)} KPIs, expires at {self._cache_timestamp + self._cache_ttl}")
+                return kpis
+            except Exception as e:
+                logger.exception(f"Error getting all KPIs: {e}")
+                # Jika error tapi cache ada, return cache lama
+                if self._cache is not None:
+                    logger.warning("Database error, returning stale cache")
+                    return self._cache
+                return []
+    
+    def get_cache_info(self) -> Dict[str, Any]:
+        """Get informasi tentang status cache"""
+        with self._lock:
+            return {
+                "cache_enabled": True,
+                "cache_ttl_seconds": int(self._cache_ttl.total_seconds()),
+                "is_cached": self._cache is not None,
+                "is_valid": self._is_cache_valid(),
+                "cached_at": self._cache_timestamp.isoformat() if self._cache_timestamp else None,
+                "expires_at": (self._cache_timestamp + self._cache_ttl).isoformat() if self._cache_timestamp else None,
+                "cached_items": len(self._cache) if self._cache else 0
+            }
