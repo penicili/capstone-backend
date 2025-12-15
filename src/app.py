@@ -45,7 +45,7 @@ async def lifespan(app: FastAPI):
     logger.info("Initializing services...")
     encoder_service = EncoderService()
     predictor_service = PredictorService()
-    kpi_service = KPIService(cache_ttl_seconds=settings.KPI_CACHE_TTL_SECONDS)
+    kpi_service = KPIService(cache_ttl_seconds=settings.KPI_CACHE_TTL_SECONDS, encoder_service=encoder_service, predictor_service=predictor_service)
     logger.success(f"Services initialized. KPI cache TTL: {settings.KPI_CACHE_TTL_SECONDS}s")
 
     import api.router as router_module
@@ -55,6 +55,15 @@ async def lifespan(app: FastAPI):
     app.state.predictor_service = predictor_service
     app.state.kpi_service = kpi_service
     logger.success("All services registered to app state.")
+    
+    # Preload KPI cache on startup
+    logger.info("Preloading KPI cache...")
+    try:
+        kpis = kpi_service.get_all_kpis()
+        logger.success(f"KPI cache preloaded with {len(kpis)} KPIs")
+    except Exception as e:
+        logger.error(f"Failed to preload KPI cache: {e}")
+        # Continue startup even if cache preload fails
 
     yield
 

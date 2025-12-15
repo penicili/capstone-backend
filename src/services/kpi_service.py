@@ -8,30 +8,52 @@ from threading import Lock
 from core.database import db
 from core.logging import logger
 from config import settings
-from services.encoder_service import EncoderService
-from services.predictor_service import PredictorService
 from schemas.types import DropoutFeatures
-
-encoder_service = EncoderService()
-predictor_service = PredictorService()
+from fastapi import Request
+from services.predictor_service import PredictorService
+from services.encoder_service import EncoderService
 
 
 
 class KPIService:
     """Service untuk KPI dashboard queries dengan in-memory caching"""
     
-    def __init__(self, cache_ttl_seconds: int = 300):
+    def __init__(self, cache_ttl_seconds: int = 300, encoder_service: Optional[EncoderService] = None, predictor_service: Optional[PredictorService] = None):
         """
         Initialize KPI Service dengan cache configuration
         
         Args:
             cache_ttl_seconds: Cache Time To Live dalam detik (default: 300 = 5 menit)
+            encoder_service: EncoderService instance (optional)
+            predictor_service: PredictorService instance (optional)
         """
         self._cache: Optional[List[Dict[str, Any]]] = None
         self._cache_timestamp: Optional[datetime] = None
         self._cache_ttl = timedelta(seconds=cache_ttl_seconds)
+        self._encoder_service = encoder_service
+        self._predictor_service = predictor_service
         self._lock = Lock()  # Thread-safe untuk concurrent requests
         logger.info(f"KPIService initialized with cache TTL: {cache_ttl_seconds} seconds")
+    
+    @property
+    def encoder_service(self) -> Optional[EncoderService]:
+        """Lazy access to encoder_service."""
+        return self._encoder_service
+    
+    @encoder_service.setter
+    def encoder_service(self, value: Optional[EncoderService]):
+        """Set encoder_service."""
+        self._encoder_service = value
+    
+    @property
+    def predictor_service(self) -> Optional[PredictorService]:
+        """Lazy access to predictor_service."""
+        return self._predictor_service
+    
+    @predictor_service.setter
+    def predictor_service(self, value: Optional[PredictorService]):
+        """Set predictor_service."""
+        self._predictor_service = value
     
     def _is_cache_valid(self) -> bool:
         """Check apakah cache masih valid"""
@@ -48,6 +70,7 @@ class KPIService:
     
     def _calculate_forum_participation_score(self) -> Dict[str, Any]:
         """KPI 1: Forum Participation Score - Skor aktivitas diskusi"""
+        logger.info("Calculating Forum Participation Score KPI")
         query = """
             SELECT 
                 SUM(sv.sum_click) as total_forum_clicks,
@@ -75,6 +98,7 @@ class KPIService:
             return {"kpi_id": 1, "name": "Forum Participation Score", "value": 0, "unit": "clicks", "category": "engagement"}
     
     def _calculate_task_completion_ratio(self) -> Dict[str, Any]:
+        logger.info("Calculating Task Completion Ratio KPI")
         """KPI 2: Task Completion Ratio - Persentase assessment yang diselesaikan (score > 50)"""
         query = """
             SELECT 
@@ -107,6 +131,7 @@ class KPIService:
     
     def _calculate_assignment_timeliness(self) -> Dict[str, Any]:
         """KPI 3: Assignment Timeliness - Persentase tugas tepat waktu"""
+        logger.info("Calculating Assignment Timeliness KPI")
         query = """
             SELECT 
                 COUNT(CASE WHEN sa.date_submitted <= a.date THEN 1 END) as on_time_submissions,
@@ -137,6 +162,7 @@ class KPIService:
     
     def _calculate_grade_performance_index(self) -> Dict[str, Any]:
         """KPI 4: Grade Performance Index - Rata-rata nilai tugas & kuis"""
+        logger.info("Calculating Grade Performance Index KPI")
         query = """
             SELECT 
                 AVG(sa.score) as avg_score,
@@ -169,6 +195,7 @@ class KPIService:
     
     def _calculate_low_activity_alert_index(self) -> Dict[str, Any]:
         """KPI 5: Low Activity Alert Index - Indeks risiko aktivitas rendah"""
+        logger.info("Calculating Low Activity Alert Index KPI") 
         query = """
             SELECT 
                 COUNT(CASE WHEN total_clicks < avg_clicks * 0.5 THEN 1 END) as low_activity_students,
@@ -210,6 +237,7 @@ class KPIService:
     
     def _calculate_predicted_dropout_risk(self) -> Dict[str, Any]:
         """KPI 6: Predicted Dropout Risk - Prediksi risiko dropout menggunakan ML model"""
+        logger.info("Calculating Predicted Dropout Risk KPI using ML model")
         try:
             # 1. Ambil total student untuk sampling
             count_query = "SELECT COUNT(*) as total FROM studentinfo"
@@ -230,8 +258,10 @@ class KPIService:
             
             # 2. Hitung jumlah sampel berdasarkan SAMPLE_SIZE
             sample_size = max(1, int(total_students * settings.SAMPLE_SIZE))
+            logger.info(f"Getting sample size for dropout prediction: {sample_size}")
             
             # 3. Query untuk mengambil sample data student dengan fitur yang diperlukan
+            # Menggunakan subquery untuk menghindari cartesian product
             sample_query = f"""
                 SELECT 
                     si.id_student,
@@ -239,18 +269,26 @@ class KPIService:
                     si.age_band,
                     si.studied_credits,
                     si.num_of_prev_attempts,
-                    COALESCE(SUM(sv.sum_click), 0) as total_clicks,
-                    COALESCE(AVG(sa.score), 0) as avg_assessment_score
+                    COALESCE(vle.total_clicks, 0) as total_clicks,
+                    COALESCE(assess.avg_score, 0) as avg_assessment_score
                 FROM studentinfo si
-                LEFT JOIN studentvle sv ON si.id_student = sv.id_student
-                LEFT JOIN studentassessment sa ON si.id_student = sa.id_student
-                GROUP BY si.id_student, si.gender, si.age_band, 
-                         si.studied_credits, si.num_of_prev_attempts
+                LEFT JOIN (
+                    SELECT id_student, SUM(sum_click) as total_clicks
+                    FROM studentvle
+                    GROUP BY id_student
+                ) vle ON si.id_student = vle.id_student
+                LEFT JOIN (
+                    SELECT id_student, AVG(score) as avg_score
+                    FROM studentassessment
+                    WHERE score IS NOT NULL
+                    GROUP BY id_student
+                ) assess ON si.id_student = assess.id_student
                 ORDER BY RAND()
                 LIMIT {sample_size}
             """
             
             sample_data = db.execute_query(sample_query)
+            logger.info(f"Sample data retrieved for dropout prediction: {len(sample_data)} students")
             
             if not sample_data:
                 logger.warning("No sample data retrieved for dropout prediction")
@@ -268,9 +306,26 @@ class KPIService:
             
             # 5. Prediksi untuk setiap student dalam sample
             dropout_predictions = []
+            logger.info(f"Predicting dropout risk for {len(sample_data)} students")
+            
+            # Check service availability
+            if self.encoder_service is None or self.predictor_service is None:
+                logger.error("EncoderService or PredictorService not available")
+                return {
+                    "kpi_id": 6,
+                    "name": "Predicted Dropout Risk",
+                    "definition": "Prediksi risiko dropout menggunakan ML",
+                    "value": 0,
+                    "predicted_dropouts": 0,
+                    "sampled_students": 0,
+                    "unit": "percent",
+                    "category": "risk",
+                    "error": "Services not available"
+                }
+            
             for student in sample_data:
                 try:
-                    # Prepare raw features
+                    # Prepare raw features (sama seperti di router.py)
                     raw_features: DropoutFeatures = {
                         'gender': student.get('gender', 'M'),
                         'age_band': student.get('age_band', '0-35'),
@@ -280,11 +335,11 @@ class KPIService:
                         'avg_assessment_score': float(student.get('avg_assessment_score', 0))
                     }
                     
-                    # Encode features
-                    encoded_features = encoder_service.encode_dropout(raw_features)
+                    # Encode features (sama seperti di router.py)
+                    encoded_features = self.encoder_service.encode_dropout(raw_features)
                     
-                    # Predict (1 = dropout, 0 = tidak dropout)
-                    prediction = predictor_service.predict_dropout(encoded_features)
+                    # Predict (sama seperti di router.py)
+                    prediction = self.predictor_service.predict_dropout(encoded_features)
                     dropout_predictions.append(prediction)
                     
                 except Exception as e:
@@ -328,6 +383,7 @@ class KPIService:
     # KPI ini gak jelas, dibiarin aja tunggu pada nge fiks, gausah di serve ke API
     def _calculate_attendance_consistency_score(self) -> Dict[str, Any]:
         """KPI 7: Attendance Consistency Score - Konsistensi login mingguan"""
+        logger.info("Calculating Attendance Consistency Score KPI")
         query = """
             SELECT 
                 COUNT(DISTINCT id_student) as total_students,
