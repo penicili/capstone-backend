@@ -7,6 +7,14 @@ from datetime import datetime, timedelta
 from threading import Lock
 from core.database import db
 from core.logging import logger
+from config import settings
+from services.encoder_service import EncoderService
+from services.predictor_service import PredictorService
+from schemas.types import DropoutFeatures
+
+encoder_service = EncoderService()
+predictor_service = PredictorService()
+
 
 
 class KPIService:
@@ -201,34 +209,123 @@ class KPIService:
             return {"kpi_id": 5, "name": "Low Activity Alert Index", "value": 0, "unit": "percent", "category": "risk"}
     
     def _calculate_predicted_dropout_risk(self) -> Dict[str, Any]:
-        """KPI 6: Predicted Dropout Risk - Prediksi risiko dropout"""
-        query = """
-            SELECT 
-                COUNT(CASE WHEN final_result = 'Withdrawn' THEN 1 END) as withdrawn_students,
-                COUNT(*) as total_students,
-                ROUND((COUNT(CASE WHEN final_result = 'Withdrawn' THEN 1 END) * 100.0 / COUNT(*)), 2) as dropout_rate
-            FROM studentinfo
-        """
+        """KPI 6: Predicted Dropout Risk - Prediksi risiko dropout menggunakan ML model"""
         try:
-            result = db.execute_one(query)
-            dropout_rate = result.get('dropout_rate', 0) if result else 0
-            withdrawn = result.get('withdrawn_students', 0) if result else 0
-            total = result.get('total_students', 1) if result else 1
+            # 1. Ambil total student untuk sampling
+            count_query = "SELECT COUNT(*) as total FROM studentinfo"
+            count_result = db.execute_one(count_query)
+            total_students = count_result.get('total', 0) if count_result else 0
+            
+            if total_students == 0:
+                return {
+                    "kpi_id": 6,
+                    "name": "Predicted Dropout Risk",
+                    "definition": "Prediksi risiko dropout menggunakan ML",
+                    "value": 0,
+                    "predicted_dropouts": 0,
+                    "sampled_students": 0,
+                    "unit": "percent",
+                    "category": "risk"
+                }
+            
+            # 2. Hitung jumlah sampel berdasarkan SAMPLE_SIZE
+            sample_size = max(1, int(total_students * settings.SAMPLE_SIZE))
+            
+            # 3. Query untuk mengambil sample data student dengan fitur yang diperlukan
+            sample_query = f"""
+                SELECT 
+                    si.id_student,
+                    si.gender,
+                    si.age_band,
+                    si.studied_credits,
+                    si.num_of_prev_attempts,
+                    COALESCE(SUM(sv.sum_click), 0) as total_clicks,
+                    COALESCE(AVG(sa.score), 0) as avg_assessment_score
+                FROM studentinfo si
+                LEFT JOIN studentvle sv ON si.id_student = sv.id_student
+                LEFT JOIN studentassessment sa ON si.id_student = sa.id_student
+                GROUP BY si.id_student, si.gender, si.age_band, 
+                         si.studied_credits, si.num_of_prev_attempts
+                ORDER BY RAND()
+                LIMIT {sample_size}
+            """
+            
+            sample_data = db.execute_query(sample_query)
+            
+            if not sample_data:
+                logger.warning("No sample data retrieved for dropout prediction")
+                return {
+                    "kpi_id": 6,
+                    "name": "Predicted Dropout Risk",
+                    "definition": "Prediksi risiko dropout menggunakan ML",
+                    "value": 0,
+                    "predicted_dropouts": 0,
+                    "sampled_students": 0,
+                    "unit": "percent",
+                    "category": "risk"
+                }
+            
+            
+            # 5. Prediksi untuk setiap student dalam sample
+            dropout_predictions = []
+            for student in sample_data:
+                try:
+                    # Prepare raw features
+                    raw_features: DropoutFeatures = {
+                        'gender': student.get('gender', 'M'),
+                        'age_band': student.get('age_band', '0-35'),
+                        'studied_credits': int(student.get('studied_credits', 0)),
+                        'num_of_prev_attempts': int(student.get('num_of_prev_attempts', 0)),
+                        'total_clicks': int(student.get('total_clicks', 0)),
+                        'avg_assessment_score': float(student.get('avg_assessment_score', 0))
+                    }
+                    
+                    # Encode features
+                    encoded_features = encoder_service.encode_dropout(raw_features)
+                    
+                    # Predict (1 = dropout, 0 = tidak dropout)
+                    prediction = predictor_service.predict_dropout(encoded_features)
+                    dropout_predictions.append(prediction)
+                    
+                except Exception as e:
+                    logger.warning(f"Error predicting for student {student.get('id_student')}: {e}")
+                    continue
+            
+            # 6. Hitung persentase dropout (prediction = 1)
+            if len(dropout_predictions) == 0:
+                dropout_percentage = 0
+                predicted_dropouts = 0
+            else:
+                predicted_dropouts = sum(1 for pred in dropout_predictions if pred == 1)
+                dropout_percentage = round((predicted_dropouts / len(dropout_predictions)) * 100, 2)
             
             return {
                 "kpi_id": 6,
                 "name": "Predicted Dropout Risk",
-                "definition": "Prediksi risiko dropout",
-                "value": dropout_rate,
-                "withdrawn_students": withdrawn,
-                "total_students": total,
+                "definition": "Prediksi risiko dropout menggunakan ML",
+                "value": dropout_percentage,
+                "predicted_dropouts": predicted_dropouts,
+                "sampled_students": len(dropout_predictions),
+                "total_students": total_students,
+                "sample_percentage": round((sample_size / total_students) * 100, 2),
                 "unit": "percent",
                 "category": "risk"
             }
+            
         except Exception as e:
             logger.exception(f"Error calculating predicted dropout risk: {e}")
-            return {"kpi_id": 6, "name": "Predicted Dropout Risk", "value": 0, "unit": "percent", "category": "risk"}
+            return {
+                "kpi_id": 6,
+                "name": "Predicted Dropout Risk",
+                "definition": "Prediksi risiko dropout menggunakan ML",
+                "value": 0,
+                "predicted_dropouts": 0,
+                "sampled_students": 0,
+                "unit": "percent",
+                "category": "risk"
+            }
     
+    # KPI ini gak jelas, dibiarin aja tunggu pada nge fiks, gausah di serve ke API
     def _calculate_attendance_consistency_score(self) -> Dict[str, Any]:
         """KPI 7: Attendance Consistency Score - Konsistensi login mingguan"""
         query = """
@@ -277,7 +374,7 @@ class KPIService:
             force_refresh: Force refresh cache (ignore cache dan query database)
         
         Returns:
-            List of all 8 KPI metrics
+            List of 6 active KPI metrics (KPI 6 uses ML prediction)
         """
         # Check cache dengan thread-safe lock
         with self._lock:
@@ -295,7 +392,8 @@ class KPIService:
                     self._calculate_grade_performance_index(),
                     self._calculate_low_activity_alert_index(),
                     self._calculate_predicted_dropout_risk(),
-                    self._calculate_attendance_consistency_score(),
+                    # self._calculate_attendance_consistency_score(),
+                    # Consistency score gajelas, biarin aja
                 ]
                 
                 # Update cache

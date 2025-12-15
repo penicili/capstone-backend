@@ -48,10 +48,12 @@ async def get_all_kpi_metrics(request: Request, refresh: bool = False):
     Query Parameters:
         - refresh: Force refresh cache (default: False)
     
-    Returns list of 8 KPIs grouped by category:
-    - engagement: Forum Participation Score, Attendance Consistency Score
-    - academic: Task Completion Ratio, Assignment Timeliness, Grade Performance Index, Final Result Prediction
-    - risk: Low Activity Alert Index, Predicted Dropout Risk
+    Returns list of 6 active KPIs grouped by category:
+    - engagement: Forum Participation Score
+    - academic: Task Completion Ratio, Assignment Timeliness, Grade Performance Index
+    - risk: Low Activity Alert Index, Predicted Dropout Risk (ML-based)
+    
+    Note: KPI 6 (Predicted Dropout Risk) uses Machine Learning model for real predictions
     
     Frontend can iterate through the list with foreach and group by category
     

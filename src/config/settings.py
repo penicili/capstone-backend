@@ -46,3 +46,6 @@ DB_POOL_MAX_CONNECTIONS = int(os.getenv("DB_POOL_MAX_CONNECTIONS", "10"))
 
 # KPI Cache Configuration
 KPI_CACHE_TTL_SECONDS = int(os.getenv("KPI_CACHE_TTL_SECONDS", "300"))  # Default: 5 menit
+
+# Sample Size buat dimasukin model
+SAMPLE_SIZE = float(os.getenv("SAMPLE_SIZE", "0.2"))  
