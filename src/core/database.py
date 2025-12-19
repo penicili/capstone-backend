@@ -119,7 +119,7 @@ class DatabaseConnection:
                     return result is not None
         except Exception as e:
             logger.exception(f"Database connection test failed: {e}")
-            return False
+            raise
 
 
 # Global instance
