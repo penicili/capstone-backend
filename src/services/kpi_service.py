@@ -1,12 +1,11 @@
 """
 KPI Service untuk dashboard analytics
-OLAP queries untuk KPI metrics
+OLAP queries untuk KPI metrics dengan Redis caching
 """
 from typing import List, Dict, Any, Optional
-from datetime import datetime, timedelta
-from threading import Lock
 from core.database import db
 from core.logging import logger
+from core.cache import cache
 from config import settings
 from schemas.types import DropoutFeatures
 from fastapi import Request
@@ -14,9 +13,10 @@ from services.predictor_service import PredictorService
 from services.encoder_service import EncoderService
 
 
-
 class KPIService:
-    """Service untuk KPI dashboard queries dengan in-memory caching"""
+    """Service untuk KPI dashboard queries dengan Redis caching"""
+    
+    CACHE_KEY_ALL_KPIS = "kpi:all_metrics"
     
     def __init__(self, cache_ttl_seconds: int = 300, encoder_service: Optional[EncoderService] = None, predictor_service: Optional[PredictorService] = None):
         """
@@ -27,12 +27,9 @@ class KPIService:
             encoder_service: EncoderService instance (optional)
             predictor_service: PredictorService instance (optional)
         """
-        self._cache: Optional[List[Dict[str, Any]]] = None
-        self._cache_timestamp: Optional[datetime] = None
-        self._cache_ttl = timedelta(seconds=cache_ttl_seconds)
+        self._cache_ttl = cache_ttl_seconds
         self._encoder_service = encoder_service
         self._predictor_service = predictor_service
-        self._lock = Lock()  # Thread-safe untuk concurrent requests
         logger.info(f"KPIService initialized with cache TTL: {cache_ttl_seconds} seconds")
     
     @property
@@ -55,18 +52,10 @@ class KPIService:
         """Set predictor_service."""
         self._predictor_service = value
     
-    def _is_cache_valid(self) -> bool:
-        """Check apakah cache masih valid"""
-        if self._cache is None or self._cache_timestamp is None:
-            return False
-        return datetime.now() - self._cache_timestamp < self._cache_ttl
-    
     def clear_cache(self) -> None:
         """Manually clear cache (untuk force refresh)"""
-        with self._lock:
-            self._cache = None
-            self._cache_timestamp = None
-            logger.info("KPI cache cleared manually")
+        cache.delete(self.CACHE_KEY_ALL_KPIS)
+        logger.info("KPI cache cleared manually")
     
     def _calculate_forum_participation_score(self) -> Dict[str, Any]:
         """KPI 1: Forum Participation Score - Skor aktivitas diskusi"""
@@ -424,7 +413,7 @@ class KPIService:
     
     def get_all_kpis(self, force_refresh: bool = False) -> List[Dict[str, Any]]:
         """
-        Get semua KPI metrics dengan caching
+        Get semua KPI metrics dengan Redis caching
         
         Args:
             force_refresh: Force refresh cache (ignore cache dan query database)
@@ -432,48 +421,43 @@ class KPIService:
         Returns:
             List of 6 active KPI metrics (KPI 6 uses ML prediction)
         """
-        # Check cache dengan thread-safe lock
-        with self._lock:
-            if not force_refresh and self._is_cache_valid() and self._cache is not None:
-                logger.info("Returning KPIs from cache")
-                return self._cache
+        # Check cache first (unless force_refresh)
+        if not force_refresh:
+            cached_kpis = cache.get(self.CACHE_KEY_ALL_KPIS)
+            if cached_kpis is not None:
+                logger.info("Returning KPIs from Redis cache")
+                return cached_kpis
+        
+        # Cache miss atau force refresh - query database
+        logger.info("Cache miss or force refresh - querying database for KPIs")
+        try:
+            kpis = [
+                self._calculate_forum_participation_score(),
+                self._calculate_task_completion_ratio(),
+                self._calculate_assignment_timeliness(),
+                self._calculate_grade_performance_index(),
+                self._calculate_low_activity_alert_index(),
+                self._calculate_predicted_dropout_risk(),
+            ]
             
-            # Cache expired atau force refresh - query database
-            logger.info("Cache expired or force refresh - querying database for KPIs")
-            try:
-                kpis = [
-                    self._calculate_forum_participation_score(),
-                    self._calculate_task_completion_ratio(),
-                    self._calculate_assignment_timeliness(),
-                    self._calculate_grade_performance_index(),
-                    self._calculate_low_activity_alert_index(),
-                    self._calculate_predicted_dropout_risk(),
-                    # self._calculate_attendance_consistency_score(),
-                    # Consistency score gajelas, biarin aja
-                ]
-                
-                # Update cache
-                self._cache = kpis
-                self._cache_timestamp = datetime.now()
-                logger.info(f"Retrieved and cached {len(kpis)} KPIs, expires at {self._cache_timestamp + self._cache_ttl}")
-                return kpis
-            except Exception as e:
-                logger.exception(f"Error getting all KPIs: {e}")
-                # Jika error tapi cache ada, return cache lama
-                if self._cache is not None:
-                    logger.warning("Database error, returning stale cache")
-                    return self._cache
-                return []
+            # Store in Redis cache
+            cache.set(self.CACHE_KEY_ALL_KPIS, kpis, self._cache_ttl)
+            logger.info(f"Retrieved and cached {len(kpis)} KPIs with TTL {self._cache_ttl}s")
+            return kpis
+        except Exception as e:
+            logger.exception(f"Error getting all KPIs: {e}")
+            # Try to return stale cache if available
+            cached_kpis = cache.get(self.CACHE_KEY_ALL_KPIS)
+            if cached_kpis is not None:
+                logger.warning("Database error, returning stale cache")
+                return cached_kpis
+            return []
     
     def get_cache_info(self) -> Dict[str, Any]:
         """Get informasi tentang status cache"""
-        with self._lock:
-            return {
-                "cache_enabled": True,
-                "cache_ttl_seconds": int(self._cache_ttl.total_seconds()),
-                "is_cached": self._cache is not None,
-                "is_valid": self._is_cache_valid(),
-                "cached_at": self._cache_timestamp.isoformat() if self._cache_timestamp else None,
-                "expires_at": (self._cache_timestamp + self._cache_ttl).isoformat() if self._cache_timestamp else None,
-                "cached_items": len(self._cache) if self._cache else 0
-            }
+        stats = cache.get_stats()
+        return {
+            **stats,
+            "cache_ttl_seconds": self._cache_ttl,
+            "cache_key": self.CACHE_KEY_ALL_KPIS,
+        }

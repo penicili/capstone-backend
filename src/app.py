@@ -8,6 +8,7 @@ from services.kpi_service import KPIService
 from api import router
 from api import kpi_router
 from core.database import db
+from core.cache import cache
 from core.logging import logger
 from datetime import datetime
 from config import settings
@@ -17,8 +18,21 @@ from config import settings
 async def lifespan(app: FastAPI):
     # Startup
     logger.info("Starting up the application...")
+    
+    # Test Redis connection
+    logger.info("Testing Redis cache connection...")
     try:
-        # Test database connection
+        if cache.health_check():
+            stats = cache.get_stats()
+            logger.success(f"Redis cache connected: {stats['backend']} backend")
+            logger.info(f"Redis stats: {stats}")
+        else:
+            logger.warning("Redis cache health check failed, using in-memory fallback")
+    except Exception as e:
+        logger.warning(f"Redis cache connection error: {e}. Using in-memory fallback.")
+    
+    # Test database connection
+    try:
         logger.info(
             "Testing database connection... using port "
             + str(db.config["port"])
@@ -45,7 +59,11 @@ async def lifespan(app: FastAPI):
     logger.info("Initializing services...")
     encoder_service = EncoderService()
     predictor_service = PredictorService()
-    kpi_service = KPIService(cache_ttl_seconds=settings.KPI_CACHE_TTL_SECONDS, encoder_service=encoder_service, predictor_service=predictor_service)
+    kpi_service = KPIService(
+        cache_ttl_seconds=settings.KPI_CACHE_TTL_SECONDS, 
+        encoder_service=encoder_service, 
+        predictor_service=predictor_service
+    )
     logger.success(f"Services initialized. KPI cache TTL: {settings.KPI_CACHE_TTL_SECONDS}s")
 
     import api.router as router_module
@@ -54,6 +72,7 @@ async def lifespan(app: FastAPI):
     app.state.encoder_service = encoder_service
     app.state.predictor_service = predictor_service
     app.state.kpi_service = kpi_service
+    app.state.cache = cache
     logger.success("All services registered to app state.")
     
     # Preload KPI cache on startup
@@ -69,6 +88,12 @@ async def lifespan(app: FastAPI):
 
     # Shutdown
     logger.info("Shutting down the application...")
+    logger.info("Clearing cache on shutdown...")
+    try:
+        cache.clear()
+        logger.success("Cache cleared successfully")
+    except Exception as e:
+        logger.warning(f"Failed to clear cache on shutdown: {e}")
 
 
 app = FastAPI(
@@ -98,10 +123,13 @@ async def root():
 
 @app.get("/health")
 async def health():
+    cache_stats = cache.get_stats()
     return {
         "status": "ok",
         "models_ready": model_service.is_ready(),
         "database_connected": db.test_connection(),
+        "cache_backend": cache_stats.get("backend"),
+        "cache_connected": cache_stats.get("connected"),
         "timestamp": datetime.now().isoformat(),
     }
 

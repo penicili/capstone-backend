@@ -28,3 +28,7 @@ loguru
 
 # Database driver
 pymysql
+
+# Redis cache
+Redis
+aioredis
