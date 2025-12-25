@@ -58,8 +58,8 @@ class KPIService:
         logger.info("KPI cache cleared manually")
     
     def _calculate_forum_participation_score(self) -> Dict[str, Any]:
-        """KPI 1: Forum Participation Score - Skor aktivitas diskusi"""
-        logger.info("Calculating Forum Participation Score KPI")
+        """KPI 1: Forum Participation - Aktivitas diskusi"""
+        logger.info("Total student engagement in forums")
         query = """
             SELECT 
                 SUM(sv.sum_click) as total_forum_clicks,
