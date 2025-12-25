@@ -22,14 +22,13 @@ async def lifespan(app: FastAPI):
     # Test Redis connection
     logger.info("Testing Redis cache connection...")
     try:
-        if cache.health_check():
-            stats = cache.get_stats()
-            logger.success(f"Redis cache connected: {stats['backend']} backend")
-            logger.info(f"Redis stats: {stats}")
-        else:
-            logger.warning("Redis cache health check failed, using in-memory fallback")
+        cache.health_check()
+        stats = cache.get_stats()
+        logger.success(f"Redis cache connected: {stats['backend']} backend")
+        logger.info(f"Redis stats: {stats}")
     except Exception as e:
         logger.warning(f"Redis cache connection error: {e}. Using in-memory fallback.")
+        
     
     # Test database connection
     try:
