@@ -66,6 +66,11 @@ class KPIService:
                 COUNT(DISTINCT sv.id_student) as active_students,
                 ROUND(AVG(sv.sum_click), 2) as avg_clicks_per_activity
             FROM studentvle sv
+            WHERE sv.id_site IN (
+                SELECT id_site 
+                FROM vle 
+                WHERE activity_type = 'forumng'
+            )
         """
         try:
             result = db.execute_one(query)
