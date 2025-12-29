@@ -35,11 +35,17 @@ RUN adduser \
 # Leverage a bind mount to requirements.txt to avoid having to copy them into
 # into this layer.
 RUN --mount=type=cache,target=/root/.cache/pip \
-    --mount=type=bind,source=requirements.txt,target=requirements.txt \
+    --mount=type=bind,source=./capstone-backend/requirements.txt,target=requirements.txt \
     python -m pip install -r requirements.txt
 
 # Copy the source code into the container.
-COPY . .
+COPY ./capstone-backend /app
+
+# Copy ML models from root directory
+COPY ./dropout_modelv2.pkl /app/src/assets/models/dropout_model.pkl
+COPY ./final_grade_modelv2.pkl /app/src/assets/models/final_grade_model.pkl
+COPY ./label_encoder_dropoutv2.pkl /app/src/assets/models/label_encoder_dropout.pkl
+COPY ./final_grade_encodersv2.pkl /app/src/assets/models/label_encoder_finalgrade.pkl
 
 # Create logs directory and set permissions before switching to non-privileged user
 RUN mkdir -p /app/src/logs && chown -R appuser:appuser /app
