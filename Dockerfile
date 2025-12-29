@@ -38,11 +38,17 @@ RUN --mount=type=cache,target=/root/.cache/pip \
     --mount=type=bind,source=requirements.txt,target=requirements.txt \
     python -m pip install -r requirements.txt
 
+# Copy the source code into the container.
+COPY . .
+
+# Create logs directory and set permissions before switching to non-privileged user
+RUN mkdir -p /app/src/logs && chown -R appuser:appuser /app
+
 # Switch to the non-privileged user to run the application.
 USER appuser
 
-# Copy the source code into the container.
-COPY . .
+# Set PYTHONPATH so Python can find the src modules
+ENV PYTHONPATH=/app/src
 
 # Expose the port that the application listens on.
 EXPOSE 8000
