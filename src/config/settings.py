@@ -5,9 +5,9 @@ from dotenv import load_dotenv
 # Base directories
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Load .env file dari src directory (jangan override env vars dari Docker)
+# Load .env file dari src directory
 env_path = BASE_DIR / ".env"
-load_dotenv(dotenv_path=env_path, override=False)
+load_dotenv(dotenv_path=env_path)
 
 # ML Directory
 ML_DIR = BASE_DIR / os.getenv("ML_DIR", "assets/models")
