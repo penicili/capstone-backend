@@ -39,13 +39,7 @@ RUN --mount=type=cache,target=/root/.cache/pip \
     python -m pip install -r requirements.txt
 
 # Copy the source code into the container.
-COPY ./capstone-backend /app
-
-# Copy ML models from root directory
-COPY ./dropout_modelv2.pkl /app/src/assets/models/dropout_model.pkl
-COPY ./final_grade_modelv2.pkl /app/src/assets/models/final_grade_model.pkl
-COPY ./label_encoder_dropoutv2.pkl /app/src/assets/models/label_encoder_dropout.pkl
-COPY ./final_grade_encodersv2.pkl /app/src/assets/models/label_encoder_finalgrade.pkl
+COPY . /app
 
 # Create logs directory and set permissions before switching to non-privileged user
 RUN mkdir -p /app/src/logs && chown -R appuser:appuser /app
