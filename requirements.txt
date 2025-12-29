@@ -28,6 +28,7 @@ loguru
 
 # Database driver
 pymysql
+cryptography
 
 # Redis cache
 Redis
