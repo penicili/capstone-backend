@@ -14,10 +14,10 @@ class PredictorService:
         self.dropout_model = models.get("dropout_model")
         
     def predict_final_grade(self, features: FinalResultFeaturesEncoded):
-        """Predict final grade berdasarkan input data"""
+        """Predict Final Result berdasarkan input data"""
         if not self.final_grade_model:
-            logger.exception("Final grade model is not loaded")
-            raise Exception("Final grade model is not loaded")
+            logger.exception("Final Result model is not loaded")
+            raise Exception("Final Result model is not loaded")
         
         # Convert features dict to list with correct order
         feature_list = [

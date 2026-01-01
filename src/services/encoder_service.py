@@ -14,10 +14,10 @@ class EncoderService:
         self.label_encoder_dropout = encoders.get("label_encoder_dropout")
         
     def encode_finalgrade(self, data: FinalResultFeatures) -> FinalResultFeaturesEncoded:
-        """Encode fitur untuk final grade prediction"""
+        """Encode fitur untuk Final Result prediction"""
         if not self.label_encoder_finalgrade:
-            logger.exception("Final grade label encoder is not loaded") 
-            raise Exception("Final grade label encoder is not loaded")
+            logger.exception("Final Result label encoder is not loaded") 
+            raise Exception("Final Result label encoder is not loaded")
         return {
             "gender": self.label_encoder_finalgrade['gender'].transform([data["gender"]])[0],
             "age_band": self.label_encoder_finalgrade['age_band'].transform([data["age_band"]])[0],
@@ -28,7 +28,7 @@ class EncoderService:
         }
     
     def encode_dropout(self, data: DropoutFeatures) -> DropoutFeaturesEncoded:
-        """Encode fitur untuk dropout prediction (same as final grade)"""
+        """Encode fitur untuk dropout prediction (same as Final Result)"""
         if not self.label_encoder_finalgrade:
             logger.exception("Dropout encoders not loaded") 
             raise Exception("Dropout encoders not loaded")

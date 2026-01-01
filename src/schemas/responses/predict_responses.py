@@ -41,9 +41,9 @@ class ModelStatusResponse(BaseModel):
     """Response untuk model status"""
     models_ready: bool = Field(..., description="Apakah semua model sudah ready")
     dropout_model_loaded: bool = Field(..., description="Status dropout model")
-    final_grade_model_loaded: bool = Field(..., description="Status final grade model")
+    final_grade_model_loaded: bool = Field(..., description="Status Final Result model")
     dropout_encoder_loaded: bool = Field(..., description="Status dropout label encoder")
-    finalgrade_encoder_loaded: bool = Field(..., description="Status final grade label encoder")
+    finalgrade_encoder_loaded: bool = Field(..., description="Status Final Result label encoder")
 
     class Config:
         json_schema_extra = {

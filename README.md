@@ -110,7 +110,7 @@ API Documentation:
 
 ### Prediction Endpoints
 
-**POST /api/predict/final-result** - Predict student final grade
+**POST /api/predict/final-result** - Predict student Final Result
 ```json
 {
   "gender": "M",

@@ -15,12 +15,12 @@ print("="*70)
 print("ENCODER FILES DEBUG")
 print("="*70)
 
-print(f"\nFinal Grade Encoder Path: {settings.LABEL_ENCODER_FINALGRADE_PATH}")
+print(f"\nFinal Result Encoder Path: {settings.LABEL_ENCODER_FINALGRADE_PATH}")
 print(f"Dropout Encoder Path: {settings.LABEL_ENCODER_DROPOUT_PATH}")
 
-# Load final grade encoder
+# Load Final Result encoder
 print("\n" + "="*70)
-print("FINAL GRADE ENCODER")
+print("Final Result ENCODER")
 print("="*70)
 with open(settings.LABEL_ENCODER_FINALGRADE_PATH, 'rb') as f:
     finalgrade_encoder = pickle.load(f)
